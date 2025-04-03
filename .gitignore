@@ -1,0 +1,15 @@
+# Ignorar estas carpetas
+__pycache__/
+box2d/
+classic_control/
+toy_text/
+
+# Ignorar este archivo
+registration.py
+
+# Ignorar todo en la carpeta mujoco/
+mujoco/*
+
+# No ignorar
+!mujoco/__init__.py
+!mujoco/rover.py
