@@ -12,4 +12,4 @@ mujoco/*
 
 # No ignorar
 !mujoco/__init__.py
-!mujoco/rover.py
+!mujoco/mushr.py

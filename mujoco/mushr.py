@@ -5,7 +5,7 @@ from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 
-class RoverEnv(MuJocoPyEnv, utils.EzPickle):
+class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
     """
     ### Description
     "Rover" es un vehiculo de 4 ruedas. El objetivo es mover el robot hasta que se acerque al objetivo que aparecerá 

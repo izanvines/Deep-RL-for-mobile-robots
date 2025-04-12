@@ -320,8 +320,8 @@ register(
 )
 
 register(
-    id="Rover-v0",
-    entry_point="gym.envs.mujoco.rover:RoverEnv",
+    id="MuSHREnv-v0",
+    entry_point="gym.envs.mujoco.mushr:MuSHREnv",
     max_episode_steps=1000,
     #el agente no permanezca indefinidamente en un episodio en caso de no progresar,
     #lo que ayuda a evitar situaciones de bucles infinitos.

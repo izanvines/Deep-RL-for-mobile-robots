@@ -12,4 +12,4 @@ from gym.envs.mujoco.reacher import ReacherEnv
 from gym.envs.mujoco.swimmer import SwimmerEnv
 from gym.envs.mujoco.walker2d import Walker2dEnv
 
-from gym.envs.mujoco.rover import RoverEnv
+from gym.envs.mujoco.mushr import MuSHREnv
