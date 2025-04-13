@@ -13,3 +13,4 @@ mujoco/*
 # No ignorar
 !mujoco/__init__.py
 !mujoco/mushr.py
+!mujoco/play.py

@@ -19,7 +19,7 @@ def make_env():
     return gym.make("MuSHREnv-v0", render_mode="human")  # None => entrenamiento sin renderizar
 
 dummy_env = DummyVecEnv([make_env])
-env = VecNormalize(dummy_env, norm_obs=True, norm_reward=True, clip_obs=5.0, clip_reward=5.0)
+env = VecNormalize(dummy_env, norm_obs=True, norm_reward=True, clip_obs=5.0, clip_reward=1.0)
 
 """
 # === COMPROBACIÓN DE NORMALIZACIÓN  ===

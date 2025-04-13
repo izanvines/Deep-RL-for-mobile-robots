@@ -4,6 +4,8 @@ from gym import utils
 from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
+from scipy.spatial.transform import Rotation as R
+
 
 class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
     """
@@ -53,45 +55,65 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
         vec = self.get_body_com("buddy") - self.get_body_com("target")
         distance_to_target = np.linalg.norm(vec)
 
-        #--------------------------------- CALCULO DE LA RECOMPENSA --------------------------------- 
-        # Obtener distancia previa o inicializarla en infinito
+        # --- CALCULO DEL PROGRESO AL OBJETIVO ---
         previous_distance = getattr(self, "previous_distance", np.inf)
-        
-        #Calcular progreso hacia el objetivo
-        if np.isinf(previous_distance):  # Primer paso
+        if np.isinf(previous_distance):  
             progress = 0.0  # No hay progreso aún
         else:
             progress = previous_distance - distance_to_target
-
-        # Actualizar distancia previa
         self.previous_distance = distance_to_target
 
-        #Recompensa basada en distancia (más cerca => más recompensa)
-        weight_dist = 1.0
+        # --- CALCULO DEL HEADING AL OBJETIVO ---
+        quat = self.sim.data.qpos[3:7]
+        r = R.from_quat([quat[1], quat[2], quat[3], quat[0]])  # [x, y, z, w] para scipy
+        yaw = r.as_euler("xyz", degrees=True)[2]
+
+        buddy_pos = self.get_body_com("buddy")[:2]
+        target_pos = self.get_body_com("target")[:2]
+        vec_to_target = target_pos - buddy_pos
+        target_angle = np.degrees(np.arctan2(vec_to_target[1], vec_to_target[0]))
+
+
+        # ===== Normalización y pesos =====
+        weight_dist = 2.0
+        weight_ctrl = 0.2
+        weight_progress = 1.0
+        weight_time = 0.05
+        weight_heading = 1.0
+        reward_goal = 100.0
+
+        #--------------------------------- CALCULO DE LA RECOMPENSA --------------------------------- 
+        
+        # --- Recompensa basada en distancia ---
         reward_dist = weight_dist * np.exp(-distance_to_target)
+        
+        # --- Penalización por tiempo ---
+        reward_time_penalty = -weight_time
 
-        # Penalización suave por acciones grandes
-        reward_ctrl = -np.square(a).sum() * 5 #Cuanto mas grande el valor más aumenta y mas penaliza...
-        # Incentivar el progreso hacia el objetivo
-        reward_progress = 500.0 * progress
+        # --- Penalización por acción ---
+        reward_ctrl = weight_ctrl * -np.square(a).sum()
 
-        # Penalización por tiempo (pequeña cantidad negativa por cada paso)
-        reward_time_penalty = -0.1  
+        # --- Recompensa por progreso normalizado ---
+        reward_progress = weight_progress * progress
 
-        reward = reward_dist + reward_ctrl  + reward_progress + reward_time_penalty
+        # --- Recompensa por heading ---
+        heading_error = (target_angle - yaw + 180) % 360 - 180
+        reward_heading = weight_heading * (1- abs(heading_error)/180.0)
 
-
-        #Parámetro de distancia mínima para alcanzar el objetivo
-        min_distance = 0.3
-        # Recompensa adicional si alcanza el objetivo
+        # === Recompensa final ===
+        reward = reward_dist + reward_ctrl  + reward_progress + reward_time_penalty + reward_heading
+      
+        # --- Recompensa si alcanza el objetivo ---
+        min_distance = 0.25
         terminated = False
         if distance_to_target < min_distance:
-            reward += 500.0  # Recompensa extra por alcanzar el objetivo
-            terminated = True  # Finaliza el episodio
-
+            reward += reward_goal
+            terminated = True
+       
+       
         #---------------------------------------------------------------------------------------------
-
-        self.do_simulation(a, self.frame_skip) #Aplicar la accion "a" sobre la simulacion
+        #=== ACCIÓN SOBRE EL ENTORNO ===
+        self.do_simulation(a, self.frame_skip) 
 
         if self.render_mode == "human":
             self.render()
@@ -105,7 +127,13 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
             reward,
             terminated,
             False,
-            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+            dict(
+                reward_dist=reward_dist,
+                reward_ctrl=reward_ctrl,
+                reward_progress=reward_progress,
+                reward_time=reward_time_penalty,
+                reward_heading=reward_heading,
+            ),
         )
 
     def viewer_setup(self):
