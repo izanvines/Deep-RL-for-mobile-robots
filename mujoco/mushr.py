@@ -65,10 +65,10 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
         # Actualizar distancia previa
         self.previous_distance = distance_to_target
 
-        
+        #Recompensa basada en distancia (más cerca => más recompensa)
+        weight_dist = 1.0
+        reward_dist = weight_dist * np.exp(-distance_to_target)
 
-        #Maximizar la recompensa --> minimizar la distancia (hacerla lo más pequeña posible) para obtener una recompensa más alta.
-        reward_dist = -distance_to_target # Penalizar la distancia al objetivo
         # Penalización suave por acciones grandes
         reward_ctrl = -np.square(a).sum() * 5 #Cuanto mas grande el valor más aumenta y mas penaliza...
         # Incentivar el progreso hacia el objetivo
