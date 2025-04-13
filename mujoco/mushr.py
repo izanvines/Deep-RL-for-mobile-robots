@@ -43,7 +43,8 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
     #Inicializacion del entorno
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self, **kwargs)
-        observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
+        self.last_action = np.zeros(2, dtype=np.float64)  # Inicializa acción previa
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(13,), dtype=np.float64)
         MuJocoPyEnv.__init__(
             self, "one_car.xml", 5, observation_space=observation_space, **kwargs
         )     
@@ -96,6 +97,9 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
             self.render()
 
         ob = self._get_obs()
+
+        self.last_action = a  # Guarda acción actual como la "última"
+
         return (
             ob,
             reward,
@@ -134,6 +138,8 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
 
         self.set_state(qpos, qvel)
 
+        self.last_action = np.zeros(2, dtype=np.float64)
+
         return self._get_obs()
 
     def _get_obs(self):
@@ -154,11 +160,12 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
         
         return np.concatenate(
             [
-                rel_pos,           # Vector al objetivo
-                dist_to_target,    # Distancia al objetivo
-                pos_buddy,         # Posición del rover
-                orientation_buddy, # Orientación del rover
-                pos_target,        # Posición del objetivo
+                rel_pos,           # Vector al objetivo (3)
+                dist_to_target,    # Distancia al objetivo (1)
+                pos_buddy,         # Posición del rover (3)
+                orientation_buddy, # Orientación del rover (1)
+                pos_target,        # Posición del objetivo (3)
+                self.last_action   # Acción previa (2)
             ]
         )
 
