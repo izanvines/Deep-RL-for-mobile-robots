@@ -21,6 +21,17 @@ def make_env():
 dummy_env = DummyVecEnv([make_env])
 env = VecNormalize(dummy_env, norm_obs=True, norm_reward=True, clip_obs=5.0, clip_reward=5.0)
 
+"""
+# === COMPROBACIÓN DE NORMALIZACIÓN  ===
+obs_norm = env.reset()
+obs_raw = env.get_original_obs()
+obs_recalc = env.normalize_obs(obs_raw)
+
+print("Observación normalizada del reset:", obs_norm)
+print("Observación sin normalizar (original):", obs_raw)
+print("Observación original transformada (con normalize_obs):", obs_recalc)
+"""
+
 # === CREAR MODELO ===
 model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=logdir)
 
