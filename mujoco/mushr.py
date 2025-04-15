@@ -75,7 +75,7 @@ class MuSHREnv(MuJocoPyEnv, utils.EzPickle):
 
 
         # ===== Normalización y pesos =====
-        weight_dist = 2.0
+        weight_dist = 10.0
         weight_ctrl = 0.2
         weight_progress = 1.0
         weight_time = 0.05
