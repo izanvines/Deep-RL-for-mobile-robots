@@ -12,9 +12,9 @@ np.random.seed(SEED)
 torch.manual_seed(SEED)
 
 # === CONFIG ===
-models_dir = "models_AMR_150425_3/PPO"
-logdir = "logs_AMR_150425"
-normalize_path = "models_AMR_150425_3/vec_normalize.pkl"
+models_dir = "/media/izan/usb-rl/models_AMR_150425_1/PPO"
+logdir = "/media/izan/usb-rl/logs_AMR_150425"
+normalize_path = "/media/izan/usb-rl/models_AMR_150425_1/vec_normalize.pkl"
 timesteps = 5000
 n_iterations = 1000
 
@@ -50,7 +50,7 @@ model = PPO("MlpPolicy", vec_env, verbose=1, tensorboard_log=logdir)
 
 # === ENTRENAMIENTO ITERATIVO ===
 for i in range(1, n_iterations + 1):
-    model.learn(total_timesteps=timesteps, reset_num_timesteps=False, tb_log_name="PPO_AMR_150425_3")
+    model.learn(total_timesteps=timesteps, reset_num_timesteps=False, tb_log_name="PPO_AMR_150425")
     model.save(f"{models_dir}/{timesteps * i}")
     vec_env.save(normalize_path)
 

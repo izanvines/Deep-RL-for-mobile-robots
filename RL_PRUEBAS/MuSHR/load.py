@@ -11,7 +11,7 @@ np.random.seed(SEED)
 torch.manual_seed(SEED)
 
 # === CONFIGURACIÓN ===
-models_dir = "models_AMR_150425_2/PPO"
+models_dir = "models_AMR_150425_0/PPO"
 model_path = f"{models_dir}/3505000"  # Usa el modelo que quieras
 normalize_path = "models_AMR_150425_2/vec_normalize.pkl"
 
